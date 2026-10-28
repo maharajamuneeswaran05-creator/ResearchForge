@@ -1,0 +1,50 @@
+# Environment and Secrets
+.env
+*.env
+.env.*
+!.env.example
+backend/.env
+backend/*.env
+frontend/.env.local
+frontend/.env*.local
+
+# Python
+backend/.venv/
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node and Frontend
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+
+# IDE and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development runner helpers
+powershell.cmd
+powershell.bat
