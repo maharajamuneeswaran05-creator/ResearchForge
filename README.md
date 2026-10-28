@@ -112,10 +112,15 @@ EXPERIMENT_DEMO_MODE=false
 The frontend includes `frontend/.env.local`:
 
 ```env
+# Server-side proxy target (Node.js → FastAPI). Use 127.0.0.1 on Windows
+# because Windows resolves 'localhost' to ::1 (IPv6) while uvicorn binds IPv4.
+BACKEND_URL=http://127.0.0.1:8000
+
+# Browser-side base path (always /backend regardless of port).
 NEXT_PUBLIC_API_BASE_URL=/backend
 ```
 
-Calls to `/backend/*` are automatically reverse-proxied by Next.js to `http://localhost:8000`.
+Calls to `/backend/*` from the browser are reverse-proxied by the Next.js server route to `BACKEND_URL` (default `http://127.0.0.1:8000`).
 
 ---
 
