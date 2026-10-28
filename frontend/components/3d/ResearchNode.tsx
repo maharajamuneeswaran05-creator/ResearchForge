@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 import type { StageId, StageStatus } from "@/lib/session";
 
 interface ResearchNodeProps {
@@ -132,25 +132,38 @@ export function ResearchNode({
         </mesh>
       )}
 
-      {/* 3D HTML Label */}
-      <Html
-        position={[0, -0.65, 0]}
-        center
-        distanceFactor={14}
-        style={{ pointerEvents: "none" }}
+      {/*
+        3D Text Labels via troika-three-text (<Text> from drei).
+        Unlike <Html>, <Text> renders entirely in WebGL — it does NOT create a
+        separate React portal root, so it cannot trigger the React 19 race:
+        "Attempted to synchronously unmount a root while React was already rendering."
+      */}
+      <Text
+        position={[0, -0.66, 0]}
+        fontSize={0.14}
+        color={isSelected ? "#00f0ff" : nodeColor}
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.05}
+        outlineWidth={0.006}
+        outlineColor="#080b12"
       >
-        <div
-          className={`node-label-3d ${status} ${isSelected ? "selected" : ""} ${
-            hovered ? "hovered" : ""
-          }`}
-        >
-          <div className="node-label-header">
-            <span className={`node-status-dot ${status}`} />
-            <span className="node-title">{label}</span>
-          </div>
-          <div className="node-caption">{caption}</div>
-        </div>
-      </Html>
+        {label}
+      </Text>
+
+      <Text
+        position={[0, -0.88, 0]}
+        fontSize={0.10}
+        color="#64748b"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={2.5}
+        textAlign="center"
+        outlineWidth={0.003}
+        outlineColor="#080b12"
+      >
+        {caption}
+      </Text>
     </group>
   );
 }

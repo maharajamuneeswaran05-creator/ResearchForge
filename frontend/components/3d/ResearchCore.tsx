@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Text } from "@react-three/drei";
 
 interface ResearchCoreProps {
   question: string;
@@ -28,7 +28,7 @@ export function ResearchCore({
   const ringRef2 = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
-  // Core color shifts from cyan to bright violet when busy, or rich cyan when done
+  // Core color shifts to violet when busy, emerald when all done, cyan otherwise
   const coreColor = useMemo(() => {
     if (busy) return "#a855f7"; // violet
     if (doneCount === totalStages && totalStages > 0) return "#10b981"; // emerald
@@ -59,6 +59,12 @@ export function ResearchCore({
       ringRef2.current.rotation.x = Math.cos(t * 0.25) * 0.3;
     }
   });
+
+  const labelText = question
+    ? question.length > 55
+      ? `${question.slice(0, 55)}\u2026`
+      : question
+    : "Idle \u2014 Enter Research Question";
 
   return (
     <group position={[0, 0, 0]}>
@@ -124,34 +130,50 @@ export function ResearchCore({
       {/* Point Light emitted from core */}
       <pointLight color={coreColor} intensity={2.2} distance={8} />
 
-      {/* 3D HTML Label */}
-      <Html
-        position={[0, -1.2, 0]}
-        center
-        distanceFactor={14}
-        style={{ pointerEvents: "none" }}
+      {/*
+        3D Text Labels via troika-three-text (<Text> from drei).
+        Unlike <Html>, <Text> renders entirely in WebGL — it does NOT create a
+        separate React portal root, so it cannot trigger the React 19 race:
+        "Attempted to synchronously unmount a root while React was already rendering."
+      */}
+      <Text
+        position={[0, -1.28, 0]}
+        fontSize={0.13}
+        color={busy ? "#a855f7" : "#00f0ff"}
+        anchorX="center"
+        anchorY="middle"
+        letterSpacing={0.1}
+        outlineWidth={0.006}
+        outlineColor="#080b12"
       >
-        <div
-          className={`core-label-3d ${isSelected ? "selected" : ""} ${
-            busy ? "busy" : ""
-          }`}
-        >
-          <div className="core-badge">
-            <span className="core-pulse-dot" />
-            RESEARCH CORE
-          </div>
-          <div className="core-title">
-            {question ? (
-              question.length > 55 ? `${question.slice(0, 55)}…` : question
-            ) : (
-              "Idle — Enter Research Question"
-            )}
-          </div>
-          <div className="core-sub">
-            {doneCount} / {totalStages} Stages Complete
-          </div>
-        </div>
-      </Html>
+        {"\u25CF RESEARCH CORE"}
+      </Text>
+
+      <Text
+        position={[0, -1.55, 0]}
+        fontSize={0.115}
+        color="#e2e8f0"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={4.2}
+        textAlign="center"
+        outlineWidth={0.005}
+        outlineColor="#080b12"
+      >
+        {labelText}
+      </Text>
+
+      <Text
+        position={[0, -1.83, 0]}
+        fontSize={0.105}
+        color="#64748b"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.003}
+        outlineColor="#080b12"
+      >
+        {`${doneCount} / ${totalStages} Stages Complete`}
+      </Text>
     </group>
   );
 }
