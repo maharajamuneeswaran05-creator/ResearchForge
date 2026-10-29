@@ -1,18 +1,16 @@
 services:
   # ─────────────────────────────────────────────────────────
-  # 1. FastAPI Backend (Python)
+  # ResearchForge Unified (FastAPI + Next.js in 1 Container)
   # ─────────────────────────────────────────────────────────
   - type: web
-    name: researchforge-backend
-    runtime: python
+    name: researchforge
+    runtime: docker
     region: oregon
     plan: free
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    dockerfilePath: Dockerfile
     healthCheckPath: /health
     envVars:
-      # Required: At least one LLM/Inference API key
+      # Inference API key (NVIDIA or Nebius)
       - key: NVIDIA_API_KEY
         sync: false
       - key: NEBIUS_API_KEY
@@ -22,49 +20,16 @@ services:
       - key: NEBIUS_BASE_URL
         value: https://integrate.api.nvidia.com/v1/
 
-      # Tavily search (Evidence retrieval)
+      # Tavily search
       - key: TAVILY_API_KEY
         sync: false
       - key: TAVILY_MAX_RESULTS
         value: "5"
 
-      # Experiment Demo Mode (allows running sandbox simulation if Nebius Cloud isn't configured)
+      # Sandboxed demo execution
       - key: EXPERIMENT_DEMO_MODE
         value: "true"
       - key: REQUEST_TIMEOUT_SECONDS
         value: "60"
       - key: EXPERIMENT_TIMEOUT_SECONDS
         value: "900"
-
-      # Optional: Nebius Cloud infrastructure for real remote execution
-      - key: NEBIUS_PROJECT_ID
-        sync: false
-      - key: NEBIUS_RESULTS_BUCKET
-        sync: false
-      - key: NEBIUS_STORAGE_ACCESS_KEY_ID
-        sync: false
-      - key: NEBIUS_STORAGE_SECRET_KEY
-        sync: false
-      - key: NEBIUS_STORAGE_REGION
-        sync: false
-
-  # ─────────────────────────────────────────────────────────
-  # 2. Next.js Frontend (Node.js)
-  # ─────────────────────────────────────────────────────────
-  - type: web
-    name: researchforge-frontend
-    runtime: node
-    region: oregon
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: NEXT_PUBLIC_API_BASE_URL
-        value: /backend
-      # Point to the backend Web Service URL
-      - key: BACKEND_URL
-        fromService:
-          type: web
-          name: researchforge-backend
-          property: host
